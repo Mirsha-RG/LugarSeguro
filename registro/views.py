@@ -1,7 +1,9 @@
 from rest_framework import status
+
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
+
 from registro.models import Formulario
 from registro.serializers import FormularioSerializer
 from rest_framework.parsers import MultiPartParser
@@ -41,4 +43,24 @@ class FormularioView(APIView):
         imagen = request.data['imagen']
         return Response({'message': 'Imagen cargada correctamente'})
 
+
+class RetrieveFormularioAPIView(APIView):
+    permission_classes = (AllowAny)
+
+    def get(self, request, formulario_id):
+        formulario_obj = Formulario.objects_or_404(Formulario, pk=formulario_id)
+        serializer = FormularioSerializer(author_obj)
+        return Response(serializer.data)
+
+    def put(self, request, formulario_id):
+        formulario_obj = Formulario.objects_or_404(Formulario, pk=formulario_id)
+        serializer = FormularioSerializer(instance=author_obj, data=request.data, partial=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def delete(self, request, formulario_id):
+        formulario_obj = Formulario.objects_or_404(Formulario, pk=formulario_id)
+        formulario_obj.status = False
+        formulario_obj.save()
+        return Response({'message': 'Eliminado'}, status=status.HTTP_204_NO_CONTENT)
 

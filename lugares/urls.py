@@ -21,14 +21,15 @@ from django.conf.urls.static import static
 from registro.views import (
     RetrieveFormulario,
     CreateLugar,
+    RetrieveFormularioAPIView,
 )
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('formulario/', RetrieveFormulario.as_view()),
     path('lugar/create', CreateLugar.as_view()),
+    path('formulario/<int:formulario_id>/', RetrieveFormularioAPIView.as_view()),
 
 ]
 
-if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+

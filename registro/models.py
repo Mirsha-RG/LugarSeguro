@@ -15,6 +15,7 @@ class Formulario(models.Model):
     cp = models.IntegerField(default=0, verbose_name='Código Postal')
     registrado = models.BooleanField(default=False, verbose_name='Ya existe')
     imagen = models.ImageField(upload_to='imagenes/', verbose_name='Imagen')
+    status = models.BooleanField(default=True, verbose_name='Status')
 
     class Meta:
         db_table = 'formulario'
