@@ -4,8 +4,15 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth import login
+from django.shortcuts import render, redirect
+
+from django.contrib.auth import login, authenticate, logout
+from django.contrib.auth.forms import AuthenticationForm
+
 from registro.models import Formulario
-from registro.serializers import FormularioSerializer
+from registro.serializers import FormularioSerializers
 from rest_framework.parsers import MultiPartParser
 
 
@@ -14,8 +21,7 @@ class RetrieveFormulario(APIView):
 
     def get(self, request):
         registro_list = Formulario.objects.all()
-        serializer = FormularioSerializer(registro_list, many=True)
-
+        serializer = FormularioSerializers(registro_list, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 class CreateLugar(APIView):
@@ -48,19 +54,56 @@ class RetrieveFormularioAPIView(APIView):
     permission_classes = (AllowAny)
 
     def get(self, request, formulario_id):
-        formulario_obj = Formulario.objects_or_404(Formulario, pk=formulario_id)
-        serializer = FormularioSerializer(author_obj)
+        formulario_obj = get.object_or_404(Formulario, pk=formulario_id)
+        serializer = FormularioSerializers(formulario_obj, many=False)
         return Response(serializer.data)
 
     def put(self, request, formulario_id):
-        formulario_obj = Formulario.objects_or_404(Formulario, pk=formulario_id)
-        serializer = FormularioSerializer(instance=author_obj, data=request.data, partial=True)
+        formulario_obj = get.object_or_404(Formulario, pk=formulario_id)
+        serializer = FormularioSerializers(instance=formulario_obj, data=request.data, partial=True)
         serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def delete(self, request, formulario_id):
-        formulario_obj = Formulario.objects_or_404(Formulario, pk=formulario_id)
+        formulario_obj = get.object_or_404(Formulario, pk=formulario_id)
         formulario_obj.status = False
         formulario_obj.save()
         return Response({'message': 'Eliminado'}, status=status.HTTP_204_NO_CONTENT)
 
+
+
+    #Registro Usuario
+"""
+class RetrieveRegistroAPIView(APIView):
+    permission_classes = (AllowAny)
+
+    def SignUpView(request):
+        if request.method == 'POST':
+            form = UserCreationForm(request.POST)
+            if form.is_valid():
+                user = form.save()
+                login(request, user)  # Iniciar sesión después del registro
+                return redirect('home')  # Redirigir a la página principal u otra vista
+        else:
+            form = UserCreationForm()
+        return render(request, 'registration/signup.html', {'form': form})
+
+    def LoginView(request):
+        if request.method == 'POST':
+            username = request.POST['username']
+            password = request.POST['password']
+            user = authenticate(request, username=username, password=password)
+
+
+            if user is not None:
+                loggin(request, user)
+            return redirect('LoginView'), Response({'message': 'Los datos ingresados son incorrectos'}, status=status.HTTP_204_NO_CONTENT)
+
+        else:
+            form = AuthenticationForm()
+            return render(request, 'login.html', {'form': form})
+
+    def LogoutView(request):
+        logout(request)
+        return redirect('LoginView')
+"""

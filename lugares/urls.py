@@ -18,10 +18,17 @@ from django.urls import path
 from django.conf import settings
 from django.conf.urls.static import static
 
+
+
 from registro.views import (
     RetrieveFormulario,
     CreateLugar,
     RetrieveFormularioAPIView,
+    #LoginView,
+    #LogoutView,
+
+
+
 )
 
 urlpatterns = [
@@ -29,6 +36,10 @@ urlpatterns = [
     path('formulario/', RetrieveFormulario.as_view()),
     path('lugar/create', CreateLugar.as_view()),
     path('formulario/<int:formulario_id>/', RetrieveFormularioAPIView.as_view()),
+
+    #path('usuruario/signup/', views.SignUpView, name='signup'),
+    #path('usuruario/login/', views.LoginView, name='LoginView'),
+    #path('usuruario/logout/', views.LogoutView, name='LogoutView'),
 
 ]
 
