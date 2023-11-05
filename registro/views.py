@@ -72,7 +72,7 @@ class RetrieveFormularioAPIView(APIView):
 
 
 
-    #Registro Usuario
+    #Registro Usuario codigo de prueba
 """
 class RetrieveRegistroAPIView(APIView):
     permission_classes = (AllowAny)
