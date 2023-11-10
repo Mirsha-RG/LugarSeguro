@@ -77,7 +77,7 @@ class RetrieveUsuario(APIView):
 
     def get(self, request):
         usuario_list = Usuario.objects.all()
-        serializer = UsuarioSerializers(registro_list, many=True)
+        serializer = UsuarioSerializers(usuario_list, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 class CreateUsuario(APIView):
     permission_classes = (AllowAny,)
