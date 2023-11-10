@@ -20,7 +20,11 @@ class Formulario(models.Model):
     class Meta:
         db_table = 'formulario'
 
+class Usuario(models.Model):
+    user = models.CharField(max_length=128, verbose_name="usuario")
+    email = models.EmailField(max_length=128, verbose_name="email")
+    password = models.CharField(max_length=128, verbose_name="password")
 
-
-
+    class Meta:
+        db_table = 'usuarios'
 

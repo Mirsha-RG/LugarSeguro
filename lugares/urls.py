@@ -21,10 +21,13 @@ from django.conf.urls.static import static
 
 
 from registro.views import (
-    RetrieveFormulario,
     CreateLugar,
+    RetrieveFormulario,
     RetrieveFormularioAPIView,
-    #LoginView,
+    CreateUsuario,
+    RetrieveUsuario,
+    RetrieveUsuarioAPIView,
+      #LoginView,
     #LogoutView,
 
 
@@ -35,7 +38,11 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('formulario/', RetrieveFormulario.as_view()),
     path('lugar/create', CreateLugar.as_view()),
-    path('formulario/<int:formulario_id>/', RetrieveFormularioAPIView.as_view()),
+    path('formulario/edit/<int:formulario_id>/', RetrieveFormularioAPIView.as_view()),
+
+    path('usuario/', RetrieveUsuario.as_view()),
+    path('usuario/create', CreateUsuario.as_view()),
+    path('usuario/edit/<int:usuario_id>/', RetrieveUsuarioAPIView.as_view()),
 
     #path('usuruario/signup/', views.SignUpView, name='signup'),
     #path('usuruario/login/', views.LoginView, name='LoginView'),
