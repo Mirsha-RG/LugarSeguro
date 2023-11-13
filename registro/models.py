@@ -14,11 +14,13 @@ class Formulario(models.Model):
     numero = models.IntegerField(default=0, verbose_name='Numero')
     cp = models.IntegerField(default=0, verbose_name='Código Postal')
     registrado = models.BooleanField(default=False, verbose_name='Ya existe')
-    #imagen = models.ImageField(upload_to='imagenes/', verbose_name='Imagen')
+    imagen = models.ImageField(upload_to='imagen')
     status = models.BooleanField(default=True, verbose_name='Status')
 
     class Meta:
         db_table = 'formulario'
+
+
 
 class Usuario(models.Model):
     user = models.CharField(max_length=128, verbose_name="usuario")
@@ -28,6 +30,7 @@ class Usuario(models.Model):
 
     class Meta:
         db_table = 'usuarios'
+
 
 class Likes(models.Model):
     likes = models.IntegerField(default=0)

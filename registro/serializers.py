@@ -2,6 +2,7 @@ from rest_framework import serializers
 from registro.models import Formulario
 from registro.models import Usuario
 from registro.models import Likes
+from registro.models import Dislikes
 
 class FormularioSerializers(serializers.ModelSerializer):
     class Meta:
@@ -12,6 +13,7 @@ class UsuarioSerializers(serializers.ModelSerializer):
      class Meta:
         model = Usuario
         fields = '__all__'
+
 
 class LikesSerializer(serializers.ModelSerializer):
     class Meta:
@@ -28,7 +30,20 @@ class LikesSerializer(serializers.ModelSerializer):
             response['user'] = UsuarioSerializers(instance.formulario).data
             return response
 
+class DisikesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Dislikes
+        fields = ['__all__']
 
+        def to_representation(self, instance):
+            response = super().to_representation(instance.formulario)
+            response['nombre'] = FormularioSerializers(instance.formulario).data
+            return response
+
+            def to_representation(self, instance):
+                response = super().to_representation(instance.formulario)
+                response['user'] = UsuarioSerializers(instance.formulario).data
+                return response
 
 
         """ la funcion se abre cuando la appi este completa

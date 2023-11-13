@@ -20,6 +20,7 @@ from django.conf.urls.static import static
 
 
 
+
 from registro.views import (
     CreateLugarAPIView,
     RetrieveFormularioAPIView,
@@ -47,7 +48,7 @@ urlpatterns = [
     path('formulario/', RetrieveFormularioAPIView.as_view()),
     path('lugar/create', CreateLugarAPIView.as_view()),
     path('formulario/edit/<int:formulario_id>/', RetrieveFormularioAPIView.as_view()),
-    path('lugares/list', ListLugaresAPIVIEW.as_view()),
+    path('lugares/list', ListLugaresAPIVIEW.as_view(),),
 
 
     path('usuario/', RetrieveUsuarioAPIView.as_view()),
@@ -74,3 +75,5 @@ urlpatterns = [
 ]
 
 
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

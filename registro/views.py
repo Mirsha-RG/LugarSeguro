@@ -124,6 +124,17 @@ class RetrieveUsuarioAPIView(APIView):
         usuario_obj.save()
         return Response({'message': 'Eliminado'}, status=status.HTTP_204_NO_CONTENT)
 
+#Imagen **************************************************************************************
+
+class CreateImagenAPIView(APIView):
+
+    def post(self, request):
+        imagen_obj = Imagen.objects,create(
+            usuario = request.data.get('name', ''),
+            contrasena = request.data.get('contraseña'),
+            lugar = request.data.get('lugar'),
+        )
+
 #Likes ******************************************************************************************************************
 
 
@@ -132,7 +143,7 @@ class CreateLikeAPIView(APIView):
     def post(self, request):
         Like_obj = Like.objects.create(
             usuario = request.data.get('name',''),
-            contraseña = request.data.get('descripcion',''),
+            contrasena = request.data.get('contraseña',''),
             lugar = request.data.get('lugar',''),
         )
 
