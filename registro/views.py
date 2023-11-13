@@ -1,5 +1,4 @@
 from rest_framework import status
-
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
@@ -11,22 +10,19 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.forms import AuthenticationForm
 
-from registro.models import Formulario
-from registro.serializers import FormularioSerializers
-from registro.models import Usuario
-from registro.serializers import UsuarioSerializers
+from registro.serializers import(
+    UsuarioSerializers,
+    FormularioSerializers,
+    LikesSerializer,
+)
+from registro.models import Usuario, Formulario, Likes
 from rest_framework.parsers import MultiPartParser
+from django.shortcuts import render, redirect
 
 
-class RetrieveFormulario(APIView):
-    permission_classes = (AllowAny,)
 
-    def get(self, request):
-        registro_list = Formulario.objects.all()
-        serializer = FormularioSerializers(registro_list, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
 
-class CreateLugar(APIView):
+class CreateLugarAPIView(APIView):
     permission_classes = (AllowAny,)
 
     def post(self, request):
@@ -44,42 +40,46 @@ class CreateLugar(APIView):
         )
         return Response ({'message':'Creado'}, status=status.HTTP_201_CREATED)
 
-"""class FormularioView(APIView):
-    parser_classes = [MultiPartParser]
-
-    def post(self, request):
-        imagen = request.data['imagen']
-        return Response({'message': 'Imagen cargada correctamente'}) """
-
+class ListLugaresAPIVIEW(APIView):
+    permission_classes = (AllowAny, )
+    def get(self, request):
+        registro_list = Formulario.objects.filter(status=True)
+        serializer = FormularioSerializers(registro_list, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 class RetrieveFormularioAPIView(APIView):
-    permission_classes = (AllowAny)
+   permission_classes = (AllowAny, )
 
-    def get(self, request, formulario_id):
-        formulario_obj = get.object_or_404(Formulario, pk=formulario_id)
+   def get(self, request, formulario_id):
+        formulario_obj = get_object_or_404(Formulario, pk=formulario_id)
         serializer = FormularioSerializers(formulario_obj, many=False)
         return Response(serializer.data)
 
-    def put(self, request, formulario_id):
-        formulario_obj = get.object_or_404(Formulario, pk=formulario_id)
+   def put(self, request, formulario_id):
+        formulario_obj = get_object_or_404(Formulario, pk=formulario_id)
         serializer = FormularioSerializers(instance=formulario_obj, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    def delete(self, request, formulario_id):
-        formulario_obj = get.object_or_404(Formulario, pk=formulario_id)
+   def delete(self, request, formulario_id):
+        formulario_obj = get_object_or_404(Formulario, pk=formulario_id)
         formulario_obj.status = False
         formulario_obj.save()
         return Response({'message': 'Eliminado'}, status=status.HTTP_204_NO_CONTENT)
 
-class RetrieveUsuario(APIView):
-    permission_classes = (AllowAny,)
 
-    def get(self, request):
-        usuario_list = Usuario.objects.all()
-        serializer = UsuarioSerializers(usuario_list, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-class CreateUsuario(APIView):
+
+   """class FormularioView(APIView):
+        parser_classes = [MultiPartParser]
+
+        def post(self, request):
+            imagen = request.data['imagen']
+            return Response({'message': 'Imagen cargada correctamente'}) """
+
+#Usuario********************************************************************************************************
+
+class CreateUsuarioAPIView(APIView):
     permission_classes = (AllowAny,)
 
     def post(self, request):
@@ -92,30 +92,120 @@ class CreateUsuario(APIView):
 
         return Response({'message': 'Creado'}, status=status.HTTP_201_CREATED)
 
+class ListUsuariosAPIVIEW(APIView):
+    permission_classes = (AllowAny, )
+    def get(self, request):
+       usuarios_list = Usuario.objects.filter(status=True)
+       serializer = UsuarioSerializers( usuarios_list, many=True)
+       return Response(serializer.data, status=status.HTTP_200_OK)
 
 class RetrieveUsuarioAPIView(APIView):
-    permission_classes = (AllowAny, )
+    permission_classes = (AllowAny,)
 
-    def get(self, request, usuario_id):
-        usuario_obj = get.object_or_404(Usuario, pk=usuario_id)
-        serializer = FormularioSerializers(formulario_obj, many=False)
+    def get(self, request, formulario_id):
+        usuario_obj = get_object_or_404(Usuario, pk=formulario_id)
+        serializer = FormularioSerializers(usuario_obj, many=False)
+        return Response(serializer.data)
+
+    def post(self, request, usuario_id):
+        usuario_obj = get_object_or_404(Usuario, pk=usuario_id)
+        serializer = FormularioSerializers(usuario_obj, many=False)
         return Response(serializer.data)
 
     def put(self, request, usuario_id):
-        usuario_obj = put.object_or_404(Usuario, pk=usuario_id)
-        serializer = UsuarioSerializers(instance=formulario_obj, data=request.data, partial=True)
+        usuario_obj = get_object_or_404(Usuario, pk=usuario_id)
+        serializer = UsuarioSerializers(instance=usuario_obj, data=request.data, partial=True)
         serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def delete(self, request, usuario_id):
-        formulario_obj = get.object_or_404(Formulario, pk=usuario_id)
-        formulario_obj.status = False
-        formulario_obj.save()
+        usuario_obj = get_object_or_404(Usuario, pk=usuario_id)
+        usuario_obj.status = False
+        usuario_obj.save()
         return Response({'message': 'Eliminado'}, status=status.HTTP_204_NO_CONTENT)
 
+#Likes ******************************************************************************************************************
 
 
 
+class CreateLikeAPIView(APIView):
+    def post(self, request):
+        Like_obj = Like.objects.create(
+            usuario = request.data.get('name',''),
+            contraseña = request.data.get('descripcion',''),
+            lugar = request.data.get('lugar',''),
+        )
+
+class ListLikeAPIView(APIView):
+    permission_classes = (AllowAny,)
+    def get(self, request):
+        like_list = Likes.objects.all()
+        serializer = UsuarioSerializers(likes_list, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+class RetrieveLikeAPIView(APIView):
+    permission_classes = (AllowAny,)
+
+    def get(self, request, likes_id):
+        like_obj = get_object_or_404(Likes, pk=likes_id)
+        serializer = LikesSerializers(like_obj, many=False)
+        return Response(serializer.data)
+
+    def post(self, request, likes_id):
+        like_obj = get_object_or_404(Likes, pk=likes_id)
+        like.votes += 1
+        like.save()
+        return Response({'message': 'Like agregado', 'votes': like_obj.votes}, status=status.HTTP_200_OK)
+
+    def put(self, request, likes_id):
+        like_obj = get_object_or_404(Likes, pk=likes_id)
+        serializer = LikeSerializers(instance=like_obj, data=request.data, partial=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def delete(self, request, likes_id):
+        like_obj = get_object_or_404(Likes, pk=likes_id)
+        like_obj.status = False
+        like_obj.save()
+        return Response({'message': 'Eliminado'}, status=status.HTTP_204_NO_CONTENT)
+
+# Dislike ********************************************************************************************+
+
+class CreateDislikeAPIView(APIView):
+    def post(self, request):
+        Dislike_obj = Dislike.objects.create(
+            usuario = request.data.get('name',''),
+            contraseña = request.data.get('descripcion',''),
+            lugar = request.data.get('lugar',''),
+        )
+
+class ListDislikeAPIView(APIView):
+    permission_classes = (AllowAny, )
+
+    def get(self, request):
+        dislike_list = Dislikes.objects.all()
+        serializer = DislikesSerializers(dislikes_list, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+class RetriveDislikeAPIView(APIView):
+    def post(self, request, like_id):
+        dislike = get_object_or_404(Likes, pk=dislike_id)
+        dislike.votes -= 1
+        dislike.save()
+        return Response({'message': 'Dislike agregado', 'votes': dislike.votes}, status=status.HTTP_200_OK)
+
+
+    def put(self, request, likes_id):
+        dislike_obj = get_object_or_404(Dislikes, pk=dislike_id)
+        serializer = DislikesSerializers(instance=like_obj, data=request.data, partial=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def delete(self, request, likes_id):
+        dislike_obj = get_object_or_404(Dislikes, pk=dislike_id)
+        dislike_obj.status = False
+        dislike_obj .save()
+        return Response({'message': 'Eliminado'}, status=status.HTTP_204_NO_CONTENT)
 
 #Registro Usuario codigo de prueba
 """
