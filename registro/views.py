@@ -70,13 +70,6 @@ class RetrieveFormularioAPIView(APIView):
 
 
 
-   """class FormularioView(APIView):
-        parser_classes = [MultiPartParser]
-
-        def post(self, request):
-            imagen = request.data['imagen']
-            return Response({'message': 'Imagen cargada correctamente'}) """
-
 #Usuario********************************************************************************************************
 
 class CreateUsuarioAPIView(APIView):
@@ -219,37 +212,3 @@ class RetriveDislikeAPIView(APIView):
         return Response({'message': 'Eliminado'}, status=status.HTTP_204_NO_CONTENT)
 
 #Registro Usuario codigo de prueba
-"""
-class RetrieveRegistroAPIView(APIView):
-    permission_classes = (AllowAny)
-
-    def SignUpView(request):
-        if request.method == 'POST':
-            form = UserCreationForm(request.POST)
-            if form.is_valid():
-                user = form.save()
-                login(request, user)  # Iniciar sesión después del registro
-                return redirect('home')  # Redirigir a la página principal u otra vista
-        else:
-            form = UserCreationForm()
-        return render(request, 'registration/signup.html', {'form': form})
-
-    def LoginView(request):
-        if request.method == 'POST':
-            username = request.POST['username']
-            password = request.POST['password']
-            user = authenticate(request, username=username, password=password)
-
-
-            if user is not None:
-                loggin(request, user)
-            return redirect('LoginView'), Response({'message': 'Los datos ingresados son incorrectos'}, status=status.HTTP_204_NO_CONTENT)
-
-        else:
-            form = AuthenticationForm()
-            return render(request, 'login.html', {'form': form})
-
-    def LogoutView(request):
-        logout(request)
-        return redirect('LoginView')
-"""
