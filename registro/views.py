@@ -49,6 +49,7 @@ class RetrieveLugarAPIView(APIView):
    def get(self, request, lugar_id):
         lugar_obj = get_object_or_404(Lugar, pk=lugar_id)
         total_likes = lugar_obj.likes.count()
+        total_dislikes = lugar_obj.dislikes.count()
         serializer = LugarSerializers(lugar_obj, many=False)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
