@@ -4,7 +4,7 @@ from django.db import models
 # Create your models here.
 
 
-class Formulario(models.Model):
+class Lugar(models.Model):
     nombre = models.CharField(max_length=128, verbose_name='Nombre')
     descripcion = models.CharField(max_length=128, verbose_name='Descripción')
     estado = models.CharField(max_length=128, verbose_name='Estado')
@@ -15,10 +15,12 @@ class Formulario(models.Model):
     cp = models.IntegerField(default=0, verbose_name='Código Postal')
     registrado = models.BooleanField(default=False, verbose_name='Ya existe')
     imagen = models.ImageField(upload_to='imagen')
+    likes = models.ManyToManyField('Likes', related_name='Likes')
+    dislikes = models.ManyToManyField('Dislikes', related_name='Dislikes')
     status = models.BooleanField(default=True, verbose_name='Status')
 
     class Meta:
-        db_table = 'formulario'
+        db_table = 'lugar'
 
 
 
@@ -34,8 +36,9 @@ class Usuario(models.Model):
 
 class Likes(models.Model):
     likes = models.IntegerField(default=0)
-    nameId = models.ForeignKey(Formulario, on_delete=models.CASCADE, null=True, verbose_name='Usuario')
-    usuarioId = models.ForeignKey(Usuario, on_delete=models.CASCADE, null=True, verbose_name='Usuario')
+    name_Id = models.ForeignKey(Lugar, on_delete=models.CASCADE, null=True, verbose_name='Usuario', related_query_name='likes_rel_lugar')
+    usuario_Id = models.ForeignKey(Usuario, on_delete=models.CASCADE, null=True, verbose_name='Usuario')
+    fechaCreacion = models.DateTimeField(auto_now_add=True)
     status = models.BooleanField(default=True, verbose_name='Status')
 
     class Meta:
@@ -43,8 +46,9 @@ class Likes(models.Model):
 
 class Dislikes(models.Model):
     dislikes = models.IntegerField(default=0)
-    nameId = models.ForeignKey(Formulario, on_delete=models.CASCADE, null=True, verbose_name='Usuario')
-    usuarioId = models.ForeignKey(Usuario, on_delete=models.CASCADE, null=True, verbose_name='Usuario')
+    name_Id = models.ForeignKey(Lugar, on_delete=models.CASCADE, null=True, verbose_name='Usuario', related_query_name='likes_rel_lugar')
+    usuario_Id = models.ForeignKey(Usuario, on_delete=models.CASCADE, null=True, verbose_name='Usuario')
+    fechaCreacion = models.DateTimeField(auto_now_add=True)
     status = models.BooleanField(default=True, verbose_name='Status')
 
     class Meta:

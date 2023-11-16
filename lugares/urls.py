@@ -23,17 +23,13 @@ from django.conf.urls.static import static
 
 from registro.views import (
     CreateLugarAPIView,
-    RetrieveFormularioAPIView,
+    RetrieveLugarAPIView,
+    ListLugaresAPIVIEW,
     CreateUsuarioAPIView,
     RetrieveUsuarioAPIView,
     ListLugaresAPIVIEW,
-    ListUsuariosAPIVIEW,
     CreateLikeAPIView,
-    RetrieveLikeAPIView,
-    ListLikeAPIView,
     CreateDislikeAPIView,
-    RetriveDislikeAPIView,
-    ListDislikeAPIView,
 
     #LoginView,
     #LogoutView,
@@ -45,28 +41,26 @@ from registro.views import (
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('formulario/', RetrieveFormularioAPIView.as_view()),
+    path('lugar/', RetrieveLugarAPIView.as_view()),
     path('lugar/create', CreateLugarAPIView.as_view()),
-    path('formulario/edit/<int:formulario_id>/', RetrieveFormularioAPIView.as_view()),
+    path('lugar/edit/<int:formulario_id>/', RetrieveLugarAPIView.as_view()),
     path('lugares/list', ListLugaresAPIVIEW.as_view(),),
 
 
     path('usuario/', RetrieveUsuarioAPIView.as_view()),
     path('usuario/create', CreateUsuarioAPIView.as_view()),
     path('usuario/edit/<int:usuario_id>/', RetrieveUsuarioAPIView.as_view()),
-    path('usuarios/list', ListUsuariosAPIVIEW.as_view()),
+    #path('usuarios/list', ListUsuariosAPIVIEW.as_view()),
 
 
-    path('like/', RetrieveLikeAPIView.as_view()),
     path('like/create', CreateLikeAPIView.as_view()),
-    path('like/edit/<int:like_id>/', RetrieveLikeAPIView.as_view(), name='api_add_like'),
-    path('like/list',ListLikeAPIView.as_view()),
+    #path('like/edit/<int:like_id>/', RetrieveLikeAPIView.as_view(), name='api_add_like'),
 
 
-    path('dislike/', RetriveDislikeAPIView.as_view()),
-    path('dlike/create', CreateDislikeAPIView.as_view()),
-    path('api/add-dislike/<int:like_id>/', RetriveDislikeAPIView.as_view(), name='api_add_dislike'),
-    path('like/list',ListDislikeAPIView.as_view()),
+
+    path('dislike/create', CreateDislikeAPIView.as_view()),
+    #path('api/add-dislike/<int:like_id>/', RetriveDislikeAPIView.as_view(), name='api_add_dislike'),
+
 
     #path('usuruario/signup/', views.SignUpView, name='signup'),
     #path('usuruario/login/', views.LoginView, name='LoginView'),

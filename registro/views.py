@@ -12,10 +12,12 @@ from django.contrib.auth.forms import AuthenticationForm
 
 from registro.serializers import(
     UsuarioSerializers,
-    FormularioSerializers,
+    LugarSerializers,
     LikesSerializer,
+    DislikesSerializer,
 )
-from registro.models import Usuario, Formulario, Likes
+
+from registro.models import Usuario, Lugar, Likes
 from rest_framework.parsers import MultiPartParser
 from django.shortcuts import render, redirect
 
@@ -26,7 +28,7 @@ class CreateLugarAPIView(APIView):
     permission_classes = (AllowAny,)
 
     def post(self, request):
-        formulario_obj = Formulario.objects.create(
+       lugar_obj= Lugar.objects.create(
             nombre = request.data.get('name',''),
             descripcion = request.data.get('descripcion',''),
             estado = request.data.get('estado',''),
@@ -38,35 +40,48 @@ class CreateLugarAPIView(APIView):
             imagen = request.data.get('imagen',''),
 
         )
-        return Response ({'message':'Creado'}, status=status.HTTP_201_CREATED)
+       return Response ({'message':'Creado'}, status=status.HTTP_201_CREATED)
 
-class ListLugaresAPIVIEW(APIView):
-    permission_classes = (AllowAny, )
-    def get(self, request):
-        registro_list = Formulario.objects.filter(status=True)
-        serializer = FormularioSerializers(registro_list, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
 
-class RetrieveFormularioAPIView(APIView):
+class RetrieveLugarAPIView(APIView):
    permission_classes = (AllowAny, )
 
-   def get(self, request, formulario_id):
-        formulario_obj = get_object_or_404(Formulario, pk=formulario_id)
-        serializer = FormularioSerializers(formulario_obj, many=False)
-        return Response(serializer.data)
+   def get(self, request, lugar_id):
+        lugar_obj = get_object_or_404(Lugar, pk=lugar_id)
+        total_likes = lugar_obj.likes.count()
+        serializer = LugarSerializers(lugar_obj, many=False)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
-   def put(self, request, formulario_id):
-        formulario_obj = get_object_or_404(Formulario, pk=formulario_id)
-        serializer = FormularioSerializers(instance=formulario_obj, data=request.data, partial=True)
+   def put(self, request, lugar_id):
+        lugar_obj = get_object_or_404(Lugar, pk=lugar_id)
+        serializer = LugarSerializers(instance=lugar_obj, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-   def delete(self, request, formulario_id):
-        formulario_obj = get_object_or_404(Formulario, pk=formulario_id)
-        formulario_obj.status = False
-        formulario_obj.save()
+   def delete(self, request, lugar_id):
+        lugar_obj = get_object_or_404(Lugar, pk=lugar_id)
+        lugar_obj.status = False
+        lugar_obj.save()
         return Response({'message': 'Eliminado'}, status=status.HTTP_204_NO_CONTENT)
+
+#Listar lugares ***********************************************************************************
+class ListLugaresAPIVIEW(APIView):
+    permission_classes = (AllowAny,)
+
+    def get(self, request):
+        lugares_list = Lugar.objects.filter(status=True)
+
+      #total de likes para cada lugar
+        lugares_data = []
+        for lugar in lugares_list:
+            total_likes = lugar.likes.count()
+            serializer = LugarSerializers(lugar, many=False)
+            lugar_data = serializer.data
+            lugar_data['total_likes'] = total_likes
+            lugares_data.append(lugar_data)
+
+        return Response(lugares_data, status=status.HTTP_200_OK)
 
 
 
@@ -85,12 +100,7 @@ class CreateUsuarioAPIView(APIView):
 
         return Response({'message': 'Creado'}, status=status.HTTP_201_CREATED)
 
-class ListUsuariosAPIVIEW(APIView):
-    permission_classes = (AllowAny, )
-    def get(self, request):
-       usuarios_list = Usuario.objects.filter(status=True)
-       serializer = UsuarioSerializers( usuarios_list, many=True)
-       return Response(serializer.data, status=status.HTTP_200_OK)
+
 
 class RetrieveUsuarioAPIView(APIView):
     permission_classes = (AllowAny,)
@@ -98,7 +108,7 @@ class RetrieveUsuarioAPIView(APIView):
     def get(self, request, formulario_id):
         usuario_obj = get_object_or_404(Usuario, pk=formulario_id)
         serializer = FormularioSerializers(usuario_obj, many=False)
-        return Response(serializer.data)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request, usuario_id):
         usuario_obj = get_object_or_404(Usuario, pk=usuario_id)
@@ -131,41 +141,21 @@ class CreateImagenAPIView(APIView):
 #Likes ******************************************************************************************************************
 
 
-
 class CreateLikeAPIView(APIView):
-    def post(self, request):
-        Like_obj = Like.objects.create(
-            usuario = request.data.get('name',''),
-            contrasena = request.data.get('contraseña',''),
-            lugar = request.data.get('lugar',''),
-        )
+    def post(self, request, lugar_id):
+        # si el usuario ya dio like al lugar
+        usuario= request.usuario
+        lugar = Lugar.objects.get(pk=lugar_id)
 
-class ListLikeAPIView(APIView):
-    permission_classes = (AllowAny,)
-    def get(self, request):
-        like_list = Likes.objects.all()
-        serializer = UsuarioSerializers(likes_list, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        if Like.objects.filter(usuario=usuario, lugar=lugar).exists():
+            return Response({'detail': 'Ya diste like a este lugar'}, status=status.HTTP_400_BAD_REQUEST)
 
-class RetrieveLikeAPIView(APIView):
-    permission_classes = (AllowAny,)
-
-    def get(self, request, likes_id):
-        like_obj = get_object_or_404(Likes, pk=likes_id)
-        serializer = LikesSerializers(like_obj, many=False)
-        return Response(serializer.data)
-
-    def post(self, request, likes_id):
-        like_obj = get_object_or_404(Likes, pk=likes_id)
-        like.votes += 1
+        # Crear el like
+        like = Like(usuario=usuario, lugar=lugar)
         like.save()
-        return Response({'message': 'Like agregado', 'votes': like_obj.votes}, status=status.HTTP_200_OK)
+        serializer = LikeSerializer(like)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-    def put(self, request, likes_id):
-        like_obj = get_object_or_404(Likes, pk=likes_id)
-        serializer = LikeSerializers(instance=like_obj, data=request.data, partial=True)
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_200_OK)
 
     def delete(self, request, likes_id):
         like_obj = get_object_or_404(Likes, pk=likes_id)
@@ -176,39 +166,22 @@ class RetrieveLikeAPIView(APIView):
 # Dislike ********************************************************************************************+
 
 class CreateDislikeAPIView(APIView):
-    def post(self, request):
-        Dislike_obj = Dislike.objects.create(
-            usuario = request.data.get('name',''),
-            contraseña = request.data.get('descripcion',''),
-            lugar = request.data.get('lugar',''),
-        )
+    def post(self, request, lugar_id):
+        usuario = request.usuario
+        lugar = Lugar.objects.get(pk=lugar_id)
 
-class ListDislikeAPIView(APIView):
-    permission_classes = (AllowAny, )
+        if Dislike.objects.filter(usuario=usuario, lugar=lugar).exists():
+            return Response({'detail': 'Ya diste dislike a este lugar'}, status=status.HTTP_400_BAD_REQUEST)
 
-    def get(self, request):
-        dislike_list = Dislikes.objects.all()
-        serializer = DislikesSerializers(dislikes_list, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-class RetriveDislikeAPIView(APIView):
-    def post(self, request, like_id):
-        dislike = get_object_or_404(Likes, pk=dislike_id)
-        dislike.votes -= 1
+        dislike = Dislike(usuario=usuario, lugar=lugar)
         dislike.save()
-        return Response({'message': 'Dislike agregado', 'votes': dislike.votes}, status=status.HTTP_200_OK)
+        serializer = DislikesSerializer(like)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-
-    def put(self, request, likes_id):
-        dislike_obj = get_object_or_404(Dislikes, pk=dislike_id)
-        serializer = DislikesSerializers(instance=like_obj, data=request.data, partial=True)
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-    def delete(self, request, likes_id):
-        dislike_obj = get_object_or_404(Dislikes, pk=dislike_id)
-        dislike_obj.status = False
-        dislike_obj .save()
+    def delete(self, request, dislikes_id):
+        dislike = get_object_or_404(Dislikes, pk=dislikes_id)
+        dislike.status = False
+        dislike.save()
         return Response({'message': 'Eliminado'}, status=status.HTTP_204_NO_CONTENT)
 
 #Registro Usuario codigo de prueba

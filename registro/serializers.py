@@ -1,12 +1,12 @@
 from rest_framework import serializers
-from registro.models import Formulario
+from registro.models import Lugar
 from registro.models import Usuario
 from registro.models import Likes
 from registro.models import Dislikes
 
-class FormularioSerializers(serializers.ModelSerializer):
+class LugarSerializers(serializers.ModelSerializer):
     class Meta:
-        model = Formulario
+        model = Lugar
         fields = '__all__'
 
 class UsuarioSerializers(serializers.ModelSerializer):
@@ -20,29 +20,34 @@ class LikesSerializer(serializers.ModelSerializer):
         model = Likes
         fields = ['__all__']
 
+class DislikesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Likes
+        fields = ['__all__']
+
     def to_representation(self, instance):
-        response = super().to_representation(instance.formulario)
-        response['nombre'] = FormularioSerializers(instance.formulario).data
+        response = super().to_representation(instance.lugar)
+        response['nombre'] = LugarSerializers(instance.lugar).data
         return response
 
         def to_representation(self, instance):
-            response = super().to_representation(instance.formulario)
-            response['user'] = UsuarioSerializers(instance.formulario).data
+            response = super().to_representation(instance.lugar)
+            response['user'] = UsuarioSerializers(instance.lugar).data
             return response
 
-class DisikesSerializer(serializers.ModelSerializer):
+class DislikesSerializer(serializers.ModelSerializer):
     class Meta:
         model = Dislikes
         fields = ['__all__']
 
         def to_representation(self, instance):
-            response = super().to_representation(instance.formulario)
-            response['nombre'] = FormularioSerializers(instance.formulario).data
+            response = super().to_representation(instance.lugar)
+            response['nombre'] = LugarSerializers(instance.lugar).data
             return response
 
             def to_representation(self, instance):
-                response = super().to_representation(instance.formulario)
-                response['user'] = UsuarioSerializers(instance.formulario).data
+                response = super().to_representation(instance.lugar)
+                response['user'] = UsuarioSerializers(instance.lugar).data
                 return response
 
 
