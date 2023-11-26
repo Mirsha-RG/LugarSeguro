@@ -20,10 +20,6 @@ class LikesSerializer(serializers.ModelSerializer):
         model = Likes
         fields = ['__all__']
 
-class DislikesSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Likes
-        fields = ['__all__']
 
     def to_representation(self, instance):
         response = super().to_representation(instance.lugar)
@@ -50,11 +46,3 @@ class DislikesSerializer(serializers.ModelSerializer):
                 response['user'] = UsuarioSerializers(instance.lugar).data
                 return response
 
-
-        """ la funcion se abre cuando la appi este completa
-    def to_representation(self, instance):
-        response = super().to_representation(instance)
-        response['formulario'] = FormularioSerializers(instance.formulario).data
-        return response
-        
-        """

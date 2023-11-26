@@ -4,11 +4,11 @@ from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 
 from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth import login
+from django.contrib.auth.forms import AuthenticationForm
 from django.shortcuts import render, redirect
 
 from django.contrib.auth import login, authenticate, logout
-from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth.models import AnonymousUser
 
 from registro.serializers import(
     UsuarioSerializers,
@@ -106,14 +106,14 @@ class CreateUsuarioAPIView(APIView):
 class RetrieveUsuarioAPIView(APIView):
     permission_classes = (AllowAny,)
 
-    def get(self, request, formulario_id):
-        usuario_obj = get_object_or_404(Usuario, pk=formulario_id)
-        serializer = FormularioSerializers(usuario_obj, many=False)
+    def get(self, request, lugar_id):
+        usuario_obj = get_object_or_404(Usuario, pk=lugar_id)
+        serializer = UsuarioSerializers(usuario_obj, many=False)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request, usuario_id):
         usuario_obj = get_object_or_404(Usuario, pk=usuario_id)
-        serializer = FormularioSerializers(usuario_obj, many=False)
+        serializer = UsuarioSerializers(usuario_obj, many=False)
         return Response(serializer.data)
 
     def put(self, request, usuario_id):
@@ -141,22 +141,27 @@ class CreateImagenAPIView(APIView):
 
 #Likes ******************************************************************************************************************
 
-
 class CreateLikeAPIView(APIView):
     def post(self, request, lugar_id):
-        # si el usuario ya dio like al lugar
-        usuario= request.usuario
+
+        if not request.user.is_authenticated:
+            return Response({'detail': 'Debes iniciar sesión para dar like'}, status=status.HTTP_401_UNAUTHORIZED)
+
+        # Obtener el lugar específico
         lugar = Lugar.objects.get(pk=lugar_id)
 
-        if Like.objects.filter(usuario=usuario, lugar=lugar).exists():
+        # Verificar si el usuario ya dio like al lugar
+        if Likes.objects.filter(usuario =usuario, name=lugar).exists():
             return Response({'detail': 'Ya diste like a este lugar'}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Crear el like
-        like = Like(usuario=usuario, lugar=lugar)
-        like.save()
+            # Crear o recuperar el like existente
+        like, created = Likes.objects.get_or_create(usuario_Id=usuario, name_Id=lugar)
+        lugar.likes += 1
+        lugar.save()
+
+        # Serializar y responder con la información del like
         serializer = LikeSerializer(like)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
-
 
     def delete(self, request, likes_id):
         like_obj = get_object_or_404(Likes, pk=likes_id)
@@ -168,15 +173,20 @@ class CreateLikeAPIView(APIView):
 
 class CreateDislikeAPIView(APIView):
     def post(self, request, lugar_id):
-        usuario = request.usuario
+        if not request.user.is_authenticated:
+            return Response({'detail': 'Debes iniciar sesión para dar like'}, status=status.HTTP_401_UNAUTHORIZED)
+
         lugar = Lugar.objects.get(pk=lugar_id)
 
-        if Dislike.objects.filter(usuario=usuario, lugar=lugar).exists():
+        if Dislikes.objects.filter(usuario_Id=usuario, name_Id=lugar).exists():
             return Response({'detail': 'Ya diste dislike a este lugar'}, status=status.HTTP_400_BAD_REQUEST)
 
-        dislike = Dislike(usuario=usuario, lugar=lugar)
-        dislike.save()
-        serializer = DislikesSerializer(like)
+
+        dislike, created = Dislikes.objects.get_or_create(usuario_Id=usuario, name_Id=lugar)
+        lugar.dislikes += 1
+        lugar.save()
+
+        serializer = DislikeSerializer(dislike)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def delete(self, request, dislikes_id):
@@ -185,4 +195,4 @@ class CreateDislikeAPIView(APIView):
         dislike.save()
         return Response({'message': 'Eliminado'}, status=status.HTTP_204_NO_CONTENT)
 
-#Registro Usuario codigo de prueba
+

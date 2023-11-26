@@ -55,6 +55,8 @@ urlpatterns = [
 
     path('like/create', CreateLikeAPIView.as_view()),
     #path('like/edit/<int:like_id>/', RetrieveLikeAPIView.as_view(), name='api_add_like'),
+    path('like/create/<int:lugar_id>/', CreateLikeAPIView.as_view()),
+
 
 
 

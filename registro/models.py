@@ -15,8 +15,8 @@ class Lugar(models.Model):
     cp = models.IntegerField(default=0, verbose_name='Código Postal')
     registrado = models.BooleanField(default=False, verbose_name='Ya existe')
     imagen = models.ImageField(upload_to='imagen')
-    likes = models.ManyToManyField('Likes', related_name='Likes')
-    dislikes = models.ManyToManyField('Dislikes', related_name='Dislikes')
+    likes = models.ManyToManyField('Likes') #related_name='Likes')
+    dislikes = models.ManyToManyField('Dislikes')#, related_name='Dislikes')
     status = models.BooleanField(default=True, verbose_name='Status')
 
     class Meta:
@@ -36,8 +36,8 @@ class Usuario(models.Model):
 
 class Likes(models.Model):
     likes = models.IntegerField(default=0)
-    name_Id = models.ForeignKey(Lugar, on_delete=models.CASCADE, null=True, verbose_name='Usuario', related_query_name='likes_rel_lugar')
-    usuario_Id = models.ForeignKey(Usuario, on_delete=models.CASCADE, null=True, verbose_name='Usuario')
+    name = models.ForeignKey(Lugar, on_delete=models.CASCADE, null=True, verbose_name='Lugar', related_query_name='likes_rel_lugar')
+    usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE, null=True, verbose_name='Usuario')
     fechaCreacion = models.DateTimeField(auto_now_add=True)
     status = models.BooleanField(default=True, verbose_name='Status')
 
